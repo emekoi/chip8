@@ -37,26 +37,50 @@ proc dissassemble(c8: var Chip8) =
         printlnfmt "{:<10s} ${:03X}", "CSB", c8.opcode and 0x0fff
       of 0x3000:
         let reg = c8.mem[c8.pc] and 0x0f
-        printlnfmt "{:<10s} V{:01X}, #${:02X}", "JEQ", reg, c8.mem[c8.pc + 1]
+        printlnfmt "{:<10s} V{:01X}, #${:02X}", "SEQ", reg, c8.mem[c8.pc + 1]
       of 0x4000:
         let reg = c8.mem[c8.pc] and 0x0f
-        printlnfmt "{:<10s} V{:01X}, #${:02X}", "JNE", reg, c8.mem[c8.pc + 1]
+        printlnfmt "{:<10s} V{:01X}, #${:02X}", "SNE", reg, c8.mem[c8.pc + 1]
       of 0x5000:
         let reg = c8.mem[c8.pc] and 0x0f
-        printlnfmt "{:<10s} V{:01X}, V{:01X}", "JEQ", reg, c8.mem[c8.pc + 1] shr 4
+        printlnfmt "{:<10s} V{:01X}, V{:01X}", "SEQ", reg, c8.mem[c8.pc + 1] shr 4
       of 0x6000:
         let reg = c8.mem[c8.pc] and 0x0f
-        printlnfmt "{:<10s} V{:01X}, #${:02X}", "MVI", reg, c8.mem[c8.pc + 1]
+        printlnfmt "{:<10s} V{:01X}, #${:02X}", "INC", reg, c8.mem[c8.pc + 1]
       of 0x7000:
-        printlnfmt "{:X} not implemented", opNibble
+        let reg = c8.mem[c8.pc] and 0x0f
+        printlnfmt "{:<10s} V{:01X}, #${:02X}", "SET", reg, c8.mem[c8.pc + 1]
       of 0x8000:
-        printlnfmt "{:X} not implemented", opNibble
+        let
+          r1 = c8.mem[c8.pc] and 0x0f
+          r2 = c8.mem[c8.pc + 1] shr 4
+        case c8.opcode and 0x000f:
+          of 0x0000:
+            printlnfmt "{:<10s} V{:01X}, V{:01X}", "SET", r1, r2
+          of 0x0001:
+            printlnfmt "{:<10s} V{:01X}, V{:01X}", "OR", r1, r2
+          of 0x0002:
+            printlnfmt "{:<10s} V{:01X}, V{:01X}", "AND", r1, r2
+          of 0x0003:
+            printlnfmt "{:<10s} V{:01X}, V{:01X}", "XOR", r1, r2
+          of 0x0004:
+            printlnfmt "{:<10s} V{:01X}, V{:01X}", "ADD", r1, r2
+          of 0x0005:
+            printlnfmt "{:<10s} V{:01X}, V{:01X}", "SUB", r1, r2
+          of 0x0006:
+            printlnfmt "{:<10s} V{:01X}, V{:01X} >> 1", "SHR", r1, r2
+          of 0x0007:
+            printlnfmt "{:<10s} V{:01X}, V{:01X}", "SUBN", r1, r2
+          of 0x000e:
+            printlnfmt "{:<10s} V{:01X}, V{:01X} << 1", "SEQ", r1, r2
+          else:
+            raise newException(Exception, fmt("invalid opcode {:04X}", c8.opcode))
       of 0x9000:
         let reg = c8.mem[c8.pc] and 0x0f
-        printlnfmt "{:<10s} V{:01X}, V{:01X}", "JNE", reg, c8.mem[c8.pc + 1] shr 4
+        printlnfmt "{:<10s} V{:01X}, V{:01X}", "SNE", reg, c8.mem[c8.pc + 1] shr 4
       of 0xa000:
         let addresshi = c8.mem[c8.pc] and 0x0f
-        printlnfmt "{:<10s} I, #${:01X}{:02X}", "MVI", addresshi, c8.mem[c8.pc + 1]
+        printlnfmt "{:<10s} I, #${:01X}{:02X}", "SET", addresshi, c8.mem[c8.pc + 1]
       of 0xb000:
         printlnfmt "{:<10s} {:03X}(V0)", "JMP", c8.opcode and 0x0fff
       of 0xc000:
@@ -67,7 +91,7 @@ proc dissassemble(c8: var Chip8) =
         printlnfmt "{:X} not implemented", opNibble
       of 0xf000:
         printlnfmt "{:X} not implemented", opNibble
-      else: raise newException(Exception, fmt("invalid opcode {:04X}", opNibble))
+      else: raise newException(Exception, fmt("invalid opcode {:04X}", c8.opcode))
 
     c8.pc += 2
     c8.opcode = 0

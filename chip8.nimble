@@ -26,3 +26,12 @@ task run, "builds and runs the emulator":
   # run binaries
   # for binary in bin:
   #   exec binDir & "/" & binary 
+
+task chip8, "builds the emulator":
+  exec "nimble c src/chip8 -o:bin/chip8"
+
+task c8dasm, "builds the decompiler":
+  exec "nimble c src/c8dasm -o:bin/c8dasm"
+
+task c8asm, "builds the compiler":
+  exec "nimble c src/c8asm -o:bin/c8asm"

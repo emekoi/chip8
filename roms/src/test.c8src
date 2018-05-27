@@ -1,0 +1,11 @@
+(
+  (movi $1 0x0F)
+  (movi $2 0x01)
+
+  (fn boo (
+    (addr $1 $2)
+  ))
+
+  (sei $1 0x0F)
+  (call boo)
+)
